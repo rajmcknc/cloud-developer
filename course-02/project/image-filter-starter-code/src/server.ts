@@ -1,6 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import isUrl from 'is-url-superb';
+import isImageURL = require('image-url-validator');
+import { filterImageFromURL, deleteLocalFiles } from './util/util';
+
 
 (async () => {
 
@@ -27,13 +30,42 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // RETURNS
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
-  /**************************************************************************** */
+    /**************************************************************************** */
+    app.get("/filteredimage", async (req, res) => {
+        let { image_url } = req.query;
 
+        console.log("image_url"+image_url);
+
+        //Make sure that the image_url is set
+        if (!image_url) {
+            return res.status(400)
+                .send("Image URL NOT set");
+        }
+
+        //validate URL
+        if (!isUrl(image_url)) {
+            return res.status(400)
+                .send("Invalid URL");
+        }
+
+        //validate image URL(ends with jpeg|jpg|gif|png)
+
+        if (await isImageURL(image_url)) {
+            //filterImageFromURL(image_url);
+            return res.status(200).send("Valid Image");
+        } else {
+            return res.status(400).send("Invalid Image");
+        }
+            
+
+        //Its a valid URL
+
+    });
   //! END @TODO1
   
   // Root Endpoint
   // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
+    app.get("/", async (req, res) => {
     res.send("try GET /filteredimage?image_url={{}}")
   } );
   
