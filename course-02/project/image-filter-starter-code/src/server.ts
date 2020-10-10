@@ -1,8 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import isUrl from 'is-url-superb';
-import isImageURL = require('image-url-validator');
-import { filterImageFromURL, deleteLocalFiles } from './util/util';
+import { isValidateImageUrl,filterImageFromURL, deleteLocalFiles } from './util/util';
 
 
 (async () => {
@@ -16,40 +14,23 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
-  // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
-  // IT SHOULD
-  //    1
-  //    1. validate the image_url query
-  //    2. call filterImageFromURL(image_url) to filter the image
-  //    3. send the resulting file in the response
-  //    4. deletes any files on the server on finish of the response
+  //  
   // QUERY PARAMATERS
   //    image_url: URL of a publicly accessible image
   // RETURNS
-  //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
+  //   the filtered image file 
 
     /**************************************************************************** */
     app.get("/filteredimage", async (req, res) => {
         //Get image_url query parameter
         const { image_url } = req.query;
-        console.log("image_url: " + image_url);
+        console.log("image_url parameter received: " + image_url);
 
-        //1.a - Make sure that the image_url is set and NOT empty
-        if (!image_url) {
-            return res.status(400)
-                .send("Image URL NOT set");
-        }
-
-        //1.b - validate to make sure that imageURL query parameter is a URL
-        if (!isUrl(image_url)) {
-            return res.status(400)
-                .send("Invalid Image URL");
-        }
-
-        //1.c - Using package 'image-url-validator', Validate to make sure the URL is an image
-        isImageURL(image_url)
+        //1 - Validate to make sure the URL is an image
+        isValidateImageUrl(image_url)
+            //If its a valid image URL, go ahead with filter image from the URL
             .then((isValidImage) => {
                 if (isValidImage) {
                     //This variable holds the path to the local file of the image, which will be
@@ -62,14 +43,16 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
                         .then((url) => {
                             localFilteredImgAbsPath = url;
                             console.log(url);
-                            
+                            //Send filtered image and then call delete local file using callback
                             return res.sendFile(url, function () {
-                                console.log('Local Path: ' + localFilteredImgAbsPath);
+                                console.log('Local Image Path: ' + localFilteredImgAbsPath);
                                 // 4 - deletes the local file of the filtered image after sending the file using callback
                                 deleteLocalFiles([localFilteredImgAbsPath]);
                             });
                         })
-                } else {
+                }
+                //Invalid image URL, so return with a message
+                else {
                     return res.status(400).send('Please correct the image url to point to a valid image');
                 }
             })
@@ -79,7 +62,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
                 return res.status(422).send('Error filtering image from URL');
             });
     });
-  //! END @TODO1
+
   
   // Root Endpoint
   // Displays a simple message to the user

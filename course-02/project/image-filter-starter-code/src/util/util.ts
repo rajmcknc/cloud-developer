@@ -1,5 +1,7 @@
 import fs from 'fs';
 import Jimp = require('jimp');
+import isUrl from 'is-url-superb';
+import isImageURL = require('image-url-validator');
 
 // filterImageFromURL
 // helper function to download, filter, and save the filtered image locally
@@ -31,4 +33,32 @@ export async function deleteLocalFiles(files:Array<string>){
     for( let file of files) {
         fs.unlinkSync(file);
     }
+}
+
+//This function does validation of the image url, makes sure its an image.
+//INPUT: Image URL of type string.
+//OUTPUT: boolean - True if its a valid image, else false.
+export async function isValidateImageUrl(imageUrl: string): Promise<boolean> {
+    return new Promise(async (resolve,reject) => {
+        //1.a - Make sure that the image_url is set and NOT empty
+        if (!imageUrl) {
+            resolve(false);
+            return;
+        }
+
+        //1.b - validate to make sure that imageURL query parameter is a URL
+        if (!isUrl(imageUrl)) {
+            resolve(false);
+            return;
+        }
+
+        //1.c - Using package 'image-url-validator', Validate to make sure the URL is an image
+        isImageURL(imageUrl).
+            then((isValidImage) => {
+                resolve(isValidImage);
+            })
+            .catch((error) => {
+                reject(error);
+            })
+    })
 }
