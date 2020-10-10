@@ -45,39 +45,39 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
         //1.b - validate to make sure that imageURL query parameter is a URL
         if (!isUrl(image_url)) {
             return res.status(400)
-                .send("Invalid URL");
+                .send("Invalid Image URL");
         }
 
         //1.c - Using package 'image-url-validator', Validate to make sure the URL is an image
-        if (isImageURL(image_url)) {
-
-            //2 - Call filterImageFromURL to filter the image
-           const localImageUrl = filterImageFromURL(image_url);
-
-            //This variable holds the path to the local file of the image, which will be
-            //later used to delete local file(s).
-            let localPath: string = '';
-
-            //3 - From the promise,get absolute path to the filtered image locally saved, 
-            //    and send it in the response.  
-            localImageUrl
-                .then((url) => {
-                    localPath = url;
-                    console.log(url);
-                    // 4 - deletes the local file of the filtered image after sending the file using callback
-                    return res.sendFile(url, function () {
-                        console.log('Local Path: ' + localPath);
-                        deleteLocalFiles([localPath]);
-                    });
-                })
-                //Handle error if an error is thrown while processing filtering the image, sending it through response or when deleting the local image.
-                .catch(error => {
-                    console.log(error.message)
-                    return res.status(422).send('Error filtering image from URL');
-                })
-        } else {
-            return res.status(400).send("Invalid Image");
-        }
+        isImageURL(image_url)
+            .then((isValidImage) => {
+                if (isValidImage) {
+                    //This variable holds the path to the local file of the image, which will be
+                    //later used to delete local file(s).
+                    let localFilteredImgAbsPath: string = '';
+                    //2 - Call filterImageFromURL to filter the image
+                    filterImageFromURL(image_url)
+                        //3 - From the promise,get absolute path to the filtered image locally saved, 
+                        //    and send it in the response.  
+                        .then((url) => {
+                            localFilteredImgAbsPath = url;
+                            console.log(url);
+                            
+                            return res.sendFile(url, function () {
+                                console.log('Local Path: ' + localFilteredImgAbsPath);
+                                // 4 - deletes the local file of the filtered image after sending the file using callback
+                                deleteLocalFiles([localFilteredImgAbsPath]);
+                            });
+                        })
+                } else {
+                    return res.status(400).send('Please correct the image url to point to a valid image');
+                }
+            })
+            //Handle error if an error is thrown while processing filtering the image, sending it through response or when deleting the local image.
+            .catch(error => {
+                console.log(error.message)
+                return res.status(422).send('Error filtering image from URL');
+            });
     });
   //! END @TODO1
   
