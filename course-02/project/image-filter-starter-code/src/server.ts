@@ -33,18 +33,13 @@ import { isValidateImageUrl,filterImageFromURL, deleteLocalFiles } from './util/
             //If its a valid image URL, go ahead with filter image from the URL
             .then((isValidImage) => {
                 if (isValidImage) {
-                    //This variable holds the path to the local file of the image, which will be
-                    //later used to delete local file(s).
-                    let localFilteredImgAbsPath: string = '';
                     //2 - Call filterImageFromURL to filter the image
                     filterImageFromURL(image_url)
                         //3 - From the promise,get absolute path to the filtered image locally saved, 
                         //    and send it in the response.  
-                        .then((url) => {
-                            localFilteredImgAbsPath = url;
-                            console.log(url);
+                        .then((localFilteredImgAbsPath) => {
                             //Send filtered image and then call delete local file using callback
-                            return res.sendFile(url, function () {
+                            return res.sendFile(localFilteredImgAbsPath, function () {
                                 console.log('Local Image Path: ' + localFilteredImgAbsPath);
                                 // 4 - deletes the local file of the filtered image after sending the file using callback
                                 deleteLocalFiles([localFilteredImgAbsPath]);
