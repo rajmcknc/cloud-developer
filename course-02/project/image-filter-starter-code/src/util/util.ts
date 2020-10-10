@@ -58,6 +58,8 @@ export async function isValidateImageUrl(imageUrl: string): Promise<boolean> {
                 resolve(isValidImage);
             })
             .catch((error) => {
+                //Log the error message if we do reach here
+                console.log(error.message);
                 reject(error);
             })
     })
