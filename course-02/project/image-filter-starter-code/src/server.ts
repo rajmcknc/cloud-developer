@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { isValidateImageUrl,filterImageFromURL, deleteLocalFiles } from './util/util';
+import { isValidImageUrl,filterImageFromURL, deleteLocalFiles } from './util/util';
 
 
 (async () => {
@@ -29,7 +29,7 @@ import { isValidateImageUrl,filterImageFromURL, deleteLocalFiles } from './util/
         console.log("image_url parameter received: " + image_url);
 
         //1 - Validate to make sure the URL is an image
-        isValidateImageUrl(image_url)
+        isValidImageUrl(image_url)
             //If its a valid image URL, go ahead with filter image from the URL
             .then((isValidImage) => {
                 if (isValidImage) {
