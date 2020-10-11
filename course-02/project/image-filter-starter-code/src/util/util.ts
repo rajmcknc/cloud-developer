@@ -38,7 +38,7 @@ export async function deleteLocalFiles(files:Array<string>){
 //This function does validation of the image url, makes sure its an image.
 //INPUT: Image URL of type string.
 //OUTPUT: boolean - True if its a valid image, else false.
-export async function isValidateImageUrl(imageUrl: string): Promise<boolean> {
+export async function isValidImageUrl(imageUrl: string): Promise<boolean> {
     return new Promise(async (resolve,reject) => {
         //1.a - Make sure that the image_url is set and NOT empty
         if (!imageUrl) {
