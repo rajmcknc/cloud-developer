@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { FeedItem } from '../models/FeedItem';
 import { requireAuth } from '../../users/routes/auth.router';
+import { config}  from '../../../../config/config' 
 import * as AWS from '../../../../aws';
 
 const router: Router = Router();
@@ -15,6 +16,16 @@ router.get('/', async (req: Request, res: Response) => {
     });
     res.send(items);
 });
+
+router.get('/getFilteredimage',
+    requireAuth,
+    async (req: Request, res: Response) => {
+        const { image_url } = req.query;
+        console.log('Image_Url: ' + image_url);
+        console.log('Image Filter Instance:' + config.dev.eb_image_filter_instance);
+        res.redirect(config.dev.eb_image_filter_instance + '/filteredimage?image_url=' + image_url);
+    });
+
 
 //@TODO
 //Add an endpoint to GET a specific resource by Primary Key
@@ -82,6 +93,9 @@ router.post('/',
         const caption = req.body.caption;
         const fileName = req.body.url;
 
+        console.log("Caption: " + caption);
+        console.log("fileName: " + fileName);
+
         // check Caption is valid
         if (!caption) {
             return res.status(400).send({ message: 'Caption is required or malformed' });
@@ -102,5 +116,6 @@ router.post('/',
         saved_item.url = AWS.getGetSignedUrl(saved_item.url);
         res.status(201).send(saved_item);
     });
+
 
 export const FeedRouter: Router = router;
