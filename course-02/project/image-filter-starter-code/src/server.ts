@@ -1,6 +1,6 @@
-import express from 'express';
 import bodyParser from 'body-parser';
-import { isValidImageUrl,filterImageFromURL, deleteLocalFiles } from './util/util';
+import express, {Request, Response} from 'express';
+import { deleteLocalFiles, filterImageFromURL, isValidImageUrl } from './util/util';
 
 
 (async () => {
@@ -23,7 +23,7 @@ import { isValidImageUrl,filterImageFromURL, deleteLocalFiles } from './util/uti
   //   the filtered image file 
 
     /**************************************************************************** */
-    app.get("/filteredimage", async (req, res) => {
+    app.get("/filteredimage", async (req:Request, res:Response) => {
         //Get image_url query parameter
         const { image_url } = req.query;
         console.log("image_url parameter received: " + image_url);
@@ -39,7 +39,7 @@ import { isValidImageUrl,filterImageFromURL, deleteLocalFiles } from './util/uti
                         //    and send it in the response.  
                         .then((localFilteredImgAbsPath) => {
                             //Send filtered image and then call delete local file using callback
-                            return res.sendFile(localFilteredImgAbsPath, function () {
+                            return res.status(200).sendFile(localFilteredImgAbsPath, function () {
                                 console.log('Local Image Path: ' + localFilteredImgAbsPath);
                                 // 4 - deletes the local file of the filtered image after sending the file using callback
                                 deleteLocalFiles([localFilteredImgAbsPath]);
